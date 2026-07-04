@@ -1,187 +1,52 @@
-// ===============================
-// DARK / LIGHT THEME
-// ===============================
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Navigation Tabs Architecture ---
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-const themeBtn = document.getElementById("themeToggle");
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
 
-if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-    themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
-}
+            // Deactivate all tabs and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
 
-themeBtn.addEventListener("click", () => {
-
-    document.body.classList.toggle("dark");
-
-    if (document.body.classList.contains("dark")) {
-
-        localStorage.setItem("theme", "dark");
-        themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
-
-    } else {
-
-        localStorage.setItem("theme", "light");
-        themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
-
-    }
-
-});
-
-// ===============================
-// MOBILE MENU
-// ===============================
-
-const menuBtn = document.querySelector(".menu-btn");
-const menu = document.getElementById("menu");
-
-menuBtn.addEventListener("click", () => {
-
-    menu.classList.toggle("show");
-
-});
-
-// ===============================
-// TYPING EFFECT
-// ===============================
-
-const typing = document.querySelector(".typing");
-
-const words = [
-
-    "Aspiring Biotechnologist",
-    "Research Enthusiast",
-    "Molecular Biology",
-    "Zebrafish Researcher"
-
-];
-
-let wordIndex = 0;
-let charIndex = 0;
-let deleting = false;
-
-function typeEffect() {
-
-    const currentWord = words[wordIndex];
-
-    if (!deleting) {
-
-        typing.textContent = currentWord.substring(0, charIndex++);
-    } else {
-
-        typing.textContent = currentWord.substring(0, charIndex--);
-    }
-
-    let speed = deleting ? 60 : 120;
-
-    if (!deleting && charIndex === currentWord.length + 1) {
-
-        deleting = true;
-        speed = 1500;
-
-    }
-
-    if (deleting && charIndex === 0) {
-
-        deleting = false;
-        wordIndex = (wordIndex + 1) % words.length;
-
-    }
-
-    setTimeout(typeEffect, speed);
-
-}
-
-typeEffect();
-
-// ===============================
-// BACK TO TOP
-// ===============================
-
-const topBtn = document.getElementById("topBtn");
-
-window.addEventListener("scroll", () => {
-
-    if (window.scrollY > 300) {
-
-        topBtn.style.display = "block";
-
-    } else {
-
-        topBtn.style.display = "none";
-
-    }
-
-});
-
-topBtn.onclick = () => {
-
-    window.scrollTo({
-
-        top: 0,
-        behavior: "smooth"
-
+            // Activate chosen tab elements
+            button.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+        });
     });
 
-};
+    // --- Dark / Light Theme Engine ---
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = themeToggleBtn.querySelector('i');
+    const themeText = themeToggleBtn.querySelector('span');
 
-// ===============================
-// SCROLL REVEAL
-// ===============================
+    // Check localStorage for prior choices, fallback to dark theme
+    const savedTheme = localStorage.getItem('portfolio-theme') || 'dark';
+    
+    // Inject saved state on layout initial paint
+    if (savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fa-solid fa-moon';
+        themeText.textContent = 'Dark Mode';
+    }
 
-const revealItems = document.querySelectorAll("section");
-
-function reveal() {
-
-    revealItems.forEach(item => {
-
-        const top = item.getBoundingClientRect().top;
-
-        if (top < window.innerHeight - 100) {
-
-            item.classList.add("active");
-
+    themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        
+        if (currentTheme === 'light') {
+            // Revert back to Default Dark Mode
+            document.documentElement.removeAttribute('data-theme');
+            themeIcon.className = 'fa-solid fa-sun';
+            themeText.textContent = 'Light Mode';
+            localStorage.setItem('portfolio-theme', 'dark');
+        } else {
+            // Deploy Light Mode Overrides
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fa-solid fa-moon';
+            themeText.textContent = 'Dark Mode';
+            localStorage.setItem('portfolio-theme', 'light');
         }
-
     });
-
-}
-
-window.addEventListener("scroll", reveal);
-reveal();
-
-// ===============================
-// ACTIVE NAVIGATION
-// ===============================
-
-const sections = document.querySelectorAll("section");
-const navLinks = document.querySelectorAll("nav ul li a");
-
-window.addEventListener("scroll", () => {
-
-    let current = "";
-
-    sections.forEach(section => {
-
-        const sectionTop = section.offsetTop - 120;
-
-        if (scrollY >= sectionTop) {
-
-            current = section.getAttribute("id");
-
-        }
-
-    });
-
-    navLinks.forEach(link => {
-
-        link.classList.remove("active");
-
-        if (link.getAttribute("href") === "#" + current) {
-
-            link.classList.add("active");
-
-        }
-
-    });
-
 });
